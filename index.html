@@ -893,11 +893,16 @@ function doSignup() {
   updateAuthUI();
   closeModal('authModal');
   toast('Welcome, ' + name.split(' ')[0] + '! 🐾');
+  checkPostAuth();
 }
 function doLogin() {
   const email = v('loginEmail'), pass = v('loginPass');
-  const user = db.users().find(u => u.email === email && u.pass === pass);
-  if (!user) { showMsg('loginMsg','Incorrect email or password.','err'); return; }
+  const allUsers = db.users();
+  const byEmail = allUsers.find(u => u.email === email);
+  if (!byEmail) { showMsg('loginMsg','No account found with that email. Please sign up first.','err'); return; }
+  if (byEmail.pass === null) { showMsg('loginMsg','This account was created with Google. Use the "Sign in with Google" button above.','err'); return; }
+  if (byEmail.pass !== pass) { showMsg('loginMsg','Wrong password. Try again or use "Forgot my password" below.','err'); return; }
+  const user = byEmail;
   localStorage.setItem('faf_me', email);
   updateAuthUI();
   closeModal('authModal');
@@ -956,11 +961,10 @@ function updateAuthUI() {
   if (me) chip.textContent = '👤 ' + me.name.split(' ')[0];
 }
 function checkPostAuth() {
-  const auth = !!db.who();
   const notice = document.getElementById('postAuthNotice');
   const form = document.getElementById('postForm');
-  if (notice) notice.style.display = auth ? 'none' : '';
-  if (form) form.style.display = auth ? '' : 'none';
+  if (notice) notice.style.display = 'none';
+  if (form) form.style.display = '';
 }
 
 // ── PHOTO SLOTS ────────────────────────────────
@@ -1101,8 +1105,8 @@ function removeCustomStep(i) {
 function submitLostPost() {
   const name = v('pName'), type = v('pType'), location = v('pLocation'),
         phone = v('pPhone'), date = v('pDate');
-  if (!name || !type || !location || !phone || !date) {
-    showMsg('postMsg','Please fill in all required fields (marked with *).','err'); return;
+  if (!name || !type) {
+    showMsg('postMsg',"Please enter at least the pet's name and animal type.",'err'); return;
   }
   const pets = db.pets();
   const id = 'pet_' + Date.now();
