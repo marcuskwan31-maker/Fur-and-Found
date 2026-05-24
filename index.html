@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FurAndFound</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+/* ── VARIABLES ─────────────────────────────── */
+:root {
+  --bg:#faeade; --card:#fff; --nav:#faeade; --text:#1a1a1a;
+  --muted:#777; --border:#e8d4c0; --inp:#fafafa;
+  --or:#c05010; --orh:#e8621a; --green:#28a745; --red:#dc3545;
+  --urg:#e63946; --sh:0 2px 16px rgba(0,0,0,.07);
+}
+[data-theme=dark]{
+  --bg:#1a1a1a; --card:#2a2a2a; --nav:#111; --text:#f0f0f0;
+  --muted:#aaa; --border:#444; --inp:#333; --sh:0 2px 16px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);transition:background .2s,color .2s;min-height:100vh;display:flex;flex-direction:column}
+a{text-decoration:none;cursor:pointer}
+img{max-width:100%}
+
+/* ── NAV ───────────────────────────────────── */
+nav{background:var(--nav);border-bottom:1px solid var(--border);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:62px;position:sticky;top:0;z-index:200;transition:background .2s}
+.nav-logo{display:flex;align-items:center;gap:7px;font-size:1.2rem;font-weight:800;color:var(--or);cursor:pointer}
+.nav-links{display:flex;align-items:center;gap:20px;list-style:none}
+.nav-links a{color:var(--muted);font-size:.88rem;font-weight:500;cursor:pointer;padding-bottom:3px;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;white-space:nowrap}
+.nav-links a:hover,.nav-links a.active{color:var(--or);border-bottom-color:var(--or)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.btn-icon{background:none;border:none;cursor:pointer;font-size:1.2rem;padding:4px 8px;color:var(--text)}
+.btn-signin{background:transparent;border:1.5px solid var(--or);color:var(--or);border-radius:50px;padding:7px 18px;cursor:pointer;font-size:.88rem;font-weight:600;transition:background .15s}
+.btn-signin:hover{background:#fde8d8}
+.btn-adopt{background:var(--or);color:#fff;border:none;border-radius:50px;padding:9px 20px;cursor:pointer;font-size:.9rem;font-weight:700;transition:background .15s}
+.btn-adopt:hover{background:var(--orh)}
+.user-chip{background:#fde8d8;color:var(--or);border-radius:50px;padding:5px 14px;font-size:.85rem;font-weight:600;cursor:pointer}
+[data-theme=dark] .user-chip{background:#3a2010}
+.hamburger{display:none;background:none;border:none;cursor:pointer;font-size:1.5rem;color:var(--text)}
+
+/* ── MOBILE MENU ───────────────────────────── */
+#mobileMenu{display:none;position:fixed;top:62px;left:0;right:0;background:var(--nav);border-bottom:1px solid var(--border);z-index:199;padding:16px;flex-direction:column;gap:4px}
+#mobileMenu.open{display:flex}
+#mobileMenu a{padding:12px 16px;color:var(--text);font-weight:500;border-radius:8px;cursor:pointer;font-size:.95rem}
+#mobileMenu a:hover{background:var(--border)}
+#mobileMenu .btn-adopt{margin-top:8px;text-align:center;display:block;padding:12px}
+
+/* ── PAGES ─────────────────────────────────── */
+.page{display:none;flex:1}
+.page.active{display:block}
+.wrap{max-width:1100px;margin:0 auto;padding:0 40px}
+.section{padding:56px 0}
+
+/* ── PAGE BANNER ───────────────────────────── */
+.page-banner{background:linear-gradient(135deg,var(--or) 0%,#e8621a 100%);padding:48px 40px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.page-banner::before{content:'🐾';position:absolute;right:60px;top:50%;transform:translateY(-50%);font-size:6rem;opacity:.15}
+.page-banner h1{font-size:2.2rem;font-weight:800;margin-bottom:6px}
+.page-banner p{font-size:1rem;opacity:.9}
+
+/* ── HERO ──────────────────────────────────── */
+.hero{display:flex;align-items:center;justify-content:space-between;gap:48px;max-width:1100px;margin:0 auto;padding:64px 40px}
+.hero-text{flex:1;max-width:560px}
+.hero-text h1{font-size:2.8rem;font-weight:800;line-height:1.15;margin-bottom:18px}
+.hero-text h1 span{color:var(--or)}
+.hero-text p{font-size:1rem;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.hero-callout{border-left:4px solid var(--or);background:#fff8f2;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:28px;font-size:.91rem;color:var(--muted);line-height:1.6}
+[data-theme=dark] .hero-callout{background:#2a1a0a}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.hero-img{flex-shrink:0;width:400px;height:300px;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.12);background:#e8d4c0;display:flex;align-items:center;justify-content:center;font-size:6rem}
+.hero-img img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ── HOME SECTIONS ─────────────────────────── */
+.emergency-strip{background:linear-gradient(135deg,#c0392b,#e74c3c);padding:40px;text-align:center;color:#fff}
+.emergency-strip h2{font-size:1.6rem;font-weight:800;margin-bottom:8px}
+.emergency-strip p{margin-bottom:20px;opacity:.9}
+.how-steps{display:flex;justify-content:center;gap:32px;flex-wrap:wrap;padding:48px 40px;max-width:900px;margin:0 auto}
+.how-step{text-align:center;flex:1;min-width:180px}
+.how-step .icon{font-size:2.8rem;margin-bottom:12px}
+.how-step h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.how-step p{font-size:.85rem;color:var(--muted)}
+.arrow{font-size:1.5rem;color:var(--border);align-self:center;margin-top:-20px}
+.stats-bar{background:var(--or);color:#fff;display:flex;justify-content:center;gap:60px;padding:28px 40px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat .num{font-size:2rem;font-weight:800;display:block}
+.stat .lbl{font-size:.85rem;opacity:.85}
+.section-title{text-align:center;margin-bottom:28px}
+.section-title h2{font-size:1.6rem;font-weight:800}
+.section-title h2 span{color:var(--or)}
+.section-title p{color:var(--muted);margin-top:6px;font-size:.93rem}
+
+/* ── BUTTONS ───────────────────────────────── */
+.btn{display:inline-block;border-radius:50px;padding:12px 26px;cursor:pointer;font-size:.95rem;font-weight:700;border:none;transition:background .15s,transform .1s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--or);color:#fff}
+.btn-primary:hover{background:var(--orh)}
+.btn-outline{background:transparent;color:var(--or);border:2px solid var(--or)}
+.btn-outline:hover{background:#fde8d8}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#1e7e34}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:#b02a37}
+.btn-sm{padding:7px 16px;font-size:.83rem}
+.btn-full{width:100%;text-align:center;display:block}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── CARDS ─────────────────────────────────── */
+.card{background:var(--card);border-radius:16px;padding:28px;box-shadow:var(--sh);transition:background .2s}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;margin-top:8px}
+.info-card{background:var(--card);border-radius:14px;padding:24px;box-shadow:var(--sh)}
+.info-card .icon{font-size:2.2rem;margin-bottom:12px}
+.info-card h3{font-size:1rem;font-weight:700;margin-bottom:7px}
+.info-card p{font-size:.88rem;color:var(--muted);line-height:1.6}
+
+/* ── FORMS ─────────────────────────────────── */
+label{display:block;font-weight:600;font-size:.85rem;margin-bottom:4px;color:var(--text)}
+input,textarea,select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:8px;margin-bottom:14px;font-size:.93rem;background:var(--inp);color:var(--text);transition:border-color .15s}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--or)}
+textarea{resize:vertical;min-height:80px}
+.form-row{display:flex;gap:14px}
+.form-row>div{flex:1}
+.form-hint{font-size:.8rem;color:var(--muted);margin-top:-10px;margin-bottom:12px}
+
+/* ── PET CARDS ─────────────────────────────── */
+.pet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px;margin-top:16px}
+.pet-card{background:var(--card);border-radius:14px;box-shadow:var(--sh);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;position:relative}
+.pet-card:hover{transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,.13)}
+.pet-card-img{width:100%;height:155px;object-fit:cover;display:block}
+.pet-card-ph{width:100%;height:155px;background:#fde8d8;display:flex;align-items:center;justify-content:center;font-size:3.5rem}
+[data-theme=dark] .pet-card-ph{background:#3a2010}
+.pet-card-body{padding:13px}
+.pet-card-body strong{display:block;font-size:1rem;color:var(--or);margin-bottom:4px}
+.pet-card-body p{font-size:.81rem;color:var(--muted);margin-bottom:2px;line-height:1.4}
+.badge{display:inline-block;border-radius:50px;padding:2px 10px;font-size:.75rem;font-weight:700;margin-bottom:6px}
+.badge-type{background:#fde8d8;color:var(--or)}
+[data-theme=dark] .badge-type{background:#3a2010}
+.badge-reunited{background:#d4edda;color:#155724}
+.badge-urgent{background:#fde8e8;color:var(--urg)}
+.badge-found{background:#d1ecf1;color:#0c5460}
+.corner-badge{position:absolute;top:10px;left:10px}
+.no-results{text-align:center;padding:48px 0;color:var(--muted)}
+
+/* ── SKELETON LOADING ──────────────────────── */
+.skeleton{background:linear-gradient(90deg,var(--border) 25%,var(--bg) 50%,var(--border) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-card{background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--sh)}
+.skel-img{height:155px}
+.skel-body{padding:13px}
+.skel-line{height:12px;margin-bottom:8px;border-radius:4px}
+.skel-line.short{width:60%}
+
+/* ── CHECKLIST ─────────────────────────────── */
+.check-step{display:flex;align-items:flex-start;gap:14px;padding:15px 0;border-bottom:1px solid var(--border)}
+.check-step:last-child{border-bottom:none}
+.step-num{background:var(--or);color:#fff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;font-size:.88rem;transition:background .2s}
+.step-done .step-num{background:var(--green)}
+.step-body{flex:1}
+.step-body strong{display:block;margin-bottom:3px;font-size:.95rem}
+.step-body span{font-size:.84rem;color:var(--muted);line-height:1.5}
+.step-cb{width:20px;height:20px;cursor:pointer;flex-shrink:0;accent-color:var(--or);margin-top:5px}
+.pet-type-btns{display:flex;gap:10px;margin-bottom:20px}
+.type-btn{padding:9px 22px;border-radius:50px;border:2px solid var(--border);background:transparent;cursor:pointer;font-weight:600;font-size:.9rem;color:var(--muted);transition:all .15s}
+.type-btn.active{border-color:var(--or);background:var(--or);color:#fff}
+
+/* ── PHOTO UPLOAD SLOTS ────────────────────── */
+.photo-slots{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.photo-slot{aspect-ratio:1;border:2px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;background:var(--inp);position:relative;transition:border-color .15s}
+.photo-slot:hover{border-color:var(--or)}
+.photo-slot img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-slot .plus{font-size:1.8rem;color:var(--muted)}
+.photo-slot .rm{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:22px;height:22px;cursor:pointer;font-size:.8rem;display:none;align-items:center;justify-content:center}
+.photo-slot:hover .rm{display:flex}
+.photo-slot input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* ── SUB TABS ──────────────────────────────── */
+.sub-tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:28px;overflow-x:auto}
+.sub-tab{padding:11px 22px;cursor:pointer;font-weight:600;font-size:.9rem;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color .15s,border-color .15s}
+.sub-tab:hover{color:var(--or)}
+.sub-tab.active{color:var(--or);border-bottom-color:var(--or)}
+.sub-page{display:none}
+.sub-page.active{display:block}
+
+/* ── FILTERS ───────────────────────────────── */
+.filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.filters input{flex:1;min-width:160px;margin-bottom:0}
+.filters select{margin-bottom:0;width:auto;min-width:130px}
+
+/* ── FAQ ───────────────────────────────────── */
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:16px 0;cursor:pointer;font-weight:600;font-size:.95rem}
+.faq-q .arrow{font-size:1rem;transition:transform .2s;color:var(--or)}
+.faq-q.open .arrow{transform:rotate(180deg)}
+.faq-a{display:none;padding:0 0 16px;color:var(--muted);font-size:.9rem;line-height:1.7}
+.faq-a.open{display:block}
+
+/* ── STEPS LIST ────────────────────────────── */
+.steps-list{list-style:none;counter-reset:s}
+.steps-list li{counter-increment:s;display:flex;gap:14px;padding:18px 0;border-bottom:1px solid var(--border)}
+.steps-list li:last-child{border-bottom:none}
+.steps-list li::before{content:counter(s);background:var(--or);color:#fff;border-radius:50%;min-width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.88rem}
+.steps-list li div strong{display:block;margin-bottom:3px}
+.steps-list li div span{font-size:.86rem;color:var(--muted)}
+
+/* ── PROFILE ───────────────────────────────── */
+.profile-info{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.profile-field{background:var(--inp);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.profile-field .lbl{font-size:.8rem;color:var(--muted);margin-bottom:2px}
+.profile-field .val{font-weight:600;font-size:.95rem}
+.profile-field button{background:none;border:none;color:var(--or);cursor:pointer;font-size:.85rem;font-weight:600}
+.msg-item{background:var(--inp);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px}
+.msg-item p{font-size:.9rem;margin-bottom:4px}
+.msg-item .meta{font-size:.78rem;color:var(--muted)}
+
+/* ── MODALS ────────────────────────────────── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:300;padding:16px}
+.modal-bg.open{display:flex}
+.modal{background:var(--card);border-radius:20px;padding:36px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2);position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted)}
+.modal h2{font-size:1.5rem;font-weight:800;margin-bottom:4px}
+.modal .sub{color:var(--muted);font-size:.88rem;margin-bottom:20px}
+.modal .paw{font-size:2.2rem;margin-bottom:10px}
+.toggle-link{color:var(--or);cursor:pointer;font-weight:600}
+
+/* ── LIGHTBOX ──────────────────────────────── */
+#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;z-index:400}
+#lightbox.open{display:flex}
+#lightbox img{max-width:90vw;max-height:90vh;border-radius:8px}
+#lightbox .lb-close{position:absolute;top:20px;right:24px;color:#fff;font-size:2rem;cursor:pointer;background:none;border:none}
+#lightbox .lb-prev,#lightbox .lb-next{position:absolute;top:50%;transform:translateY(-50%);color:#fff;font-size:2rem;cursor:pointer;background:rgba(255,255,255,.1);border:none;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center}
+#lightbox .lb-prev{left:20px}
+#lightbox .lb-next{right:20px}
+
+/* ── TOAST ─────────────────────────────────── */
+#toastContainer{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:10px;z-index:500}
+.toast{background:var(--card);border-left:4px solid var(--green);border-radius:10px;padding:14px 18px;box-shadow:0 4px 20px rgba(0,0,0,.15);font-size:.9rem;min-width:240px;animation:slideIn .25s ease}
+.toast.error{border-left-color:var(--red)}
+@keyframes slideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* ── DETAIL PAGE ───────────────────────────── */
+.detail-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.detail-gallery img{width:100%;height:120px;object-fit:cover;border-radius:10px;cursor:pointer;transition:opacity .15s}
+.detail-gallery img:hover{opacity:.85}
+.detail-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.detail-field{background:var(--inp);border-radius:10px;padding:12px 14px}
+.detail-field .lbl{font-size:.78rem;color:var(--muted);margin-bottom:2px}
+.detail-field .val{font-weight:600;font-size:.93rem}
+.comment-item{padding:14px 0;border-bottom:1px solid var(--border)}
+.comment-item:last-child{border-bottom:none}
+.comment-item p{font-size:.9rem;margin-bottom:4px}
+.comment-item .meta{font-size:.78rem;color:var(--muted)}
+.share-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+
+/* ── FOOTER ────────────────────────────────── */
+footer{background:var(--nav);border-top:1px solid var(--border);padding:40px;margin-top:auto;transition:background .2s}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:32px}
+.footer-brand .logo{font-size:1.1rem;font-weight:800;color:var(--or);display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.footer-brand p{font-size:.85rem;color:var(--muted);line-height:1.6}
+.footer-col h4{font-size:.88rem;font-weight:700;margin-bottom:12px;color:var(--text)}
+.footer-col a{display:block;font-size:.84rem;color:var(--muted);margin-bottom:7px;cursor:pointer;transition:color .15s}
+.footer-col a:hover{color:var(--or)}
+.footer-bottom{max-width:1100px;margin:24px auto 0;padding-top:20px;border-top:1px solid var(--border);font-size:.82rem;color:var(--muted);text-align:center}
+
+/* ── MSG BANNERS ───────────────────────────── */
+.msg{padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.88rem;display:none}
+.msg.ok{background:#d4edda;color:#155724;display:block}
+.msg.err{background:#fde8e8;color:#8b1a1a;display:block}
+
+/* ── RESPONSIVE ────────────────────────────── */
+@media(max-width:860px){
+  nav{padding:0 16px}
+  .nav-links,.nav-right .btn-signin,.nav-right .btn-adopt,.nav-right .user-chip,.nav-right #signoutBtn{display:none!important}
+  .nav-right .btn-icon{display:flex!important}
+  .hamburger{display:block}
+  .hero{flex-direction:column;padding:32px 16px;gap:24px}
+  .hero-img{width:100%;height:220px}
+  .wrap{padding:0 16px}
+  .how-steps{padding:32px 16px}
+  .arrow{display:none}
+  .stats-bar{gap:24px;padding:20px}
+  .form-row{flex-direction:column;gap:0}
+  .profile-info{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  .detail-info-grid{grid-template-columns:1fr}
+  .photo-slots{grid-template-columns:repeat(2,1fr)}
+  .page-banner{padding:32px 16px}
+  .section{padding:36px 0}
+  .emergency-strip{padding:28px 16px}
+}
+@media(max-width:480px){
+  .footer-inner{grid-template-columns:1fr}
+  .pet-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+  .detail-gallery{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ── PRINT ─────────────────────────────────── */
+@media print{
+  nav,footer,.sub-tabs,.hero-btns,.emergency-strip,.stats-bar,#toastContainer,.pet-type-btns,.btn{display:none!important}
+  .page-banner{background:#c05010!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .check-step{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ──────────────────────────────────── -->
+<nav>
+  <a class="nav-logo" onclick="go('home')"><span>🐾</span>FurAndFound</a>
+  <ul class="nav-links">
+    <li><a id="nl-home"    onclick="go('home')">Home</a></li>
+    <li><a id="nl-browse"  onclick="go('browse')">Browse Breeds</a></li>
+    <li><a id="nl-why"     onclick="go('why')">Why Adopt</a></li>
+    <li><a id="nl-care"    onclick="go('care')">Pet Care</a></li>
+    <li><a id="nl-how"     onclick="go('how')">How It Works</a></li>
+    <li><a id="nl-lost"    onclick="go('lost')">Lost Pet</a></li>
+    <li><a id="nl-found"   onclick="go('found')">Found a Pet</a></li>
+    <li><a id="nl-stories" onclick="go('stories')">Stories</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-icon" onclick="toggleDark()" id="darkBtn" title="Toggle dark mode">🌙</button>
+    <span class="user-chip" id="userChip" style="display:none" onclick="go('profile')"></span>
+    <button class="btn-signin" id="signinBtn" onclick="openModal('auth')">Sign In</button>
+    <button class="btn-signin" id="signoutBtn" style="display:none" onclick="doLogout()">Sign Out</button>
+    <button class="btn-adopt" onclick="window.open('https://www.petfinder.com/','_blank')">Adopt Now</button>
+    <button class="hamburger" onclick="toggleMenu()">☰</button>
+  </div>
+</nav>
+
+<!-- ── MOBILE MENU ───────────────────────────── -->
+<div id="mobileMenu">
+  <a onclick="go('home');closeMenu()">🏠 Home</a>
+  <a onclick="go('browse');closeMenu()">🐾 Browse Breeds</a>
+  <a onclick="go('why');closeMenu()">❤️ Why Adopt</a>
+  <a onclick="go('care');closeMenu()">🏥 Pet Care</a>
+  <a onclick="go('how');closeMenu()">📋 How It Works</a>
+  <a onclick="go('lost');closeMenu()">🔍 Lost Pet</a>
+  <a onclick="go('found');closeMenu()">🐕 Found a Pet</a>
+  <a onclick="go('stories');closeMenu()">🏠 Success Stories</a>
+  <a onclick="go('shelters');closeMenu()">📞 Local Shelters</a>
+  <a onclick="go('faq');closeMenu()">❓ FAQ</a>
+  <a onclick="go('about');closeMenu()">ℹ️ About Us</a>
+  <a onclick="go('contact');closeMenu()">✉️ Contact</a>
+  <a class="btn-adopt" onclick="window.open('https://www.petfinder.com/','_blank')">Adopt Now</a>
+</div>
+
+<!-- ── PAGE: HOME ────────────────────────────── -->
+<div id="page-home" class="page active">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Give a Pet a <span>Second<br>Chance</span></h1>
+      <p>Thousands of dogs and cats sit in shelters right now — waiting, hoping, and trusting that someone will come. That someone could be you. Whether you adopt, foster, volunteer, or just share this page, <strong>you can make a real difference.</strong></p>
+      <div class="hero-callout">💡 Links on this site go to Petfinder, the Humane Society, and the ASPCA — trusted, humane organisations you can use to adopt, volunteer, or donate.</div>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="go('browse')">Browse Breeds</button>
+        <button class="btn btn-outline" onclick="go('why')">Learn Why It Matters</button>
+      </div>
+    </div>
+    <div class="hero-img" id="heroImg">
+      <img src="assets/dog-cover.jpg" alt="A dog looking for a home" style="width:100%;height:100%;object-fit:cover;display:block">
+    </div>
+  </div>
+
+  <!-- Emergency -->
+  <div class="emergency-strip">
+    <h2>🚨 Did Your Pet Just Go Missing?</h2>
+    <p>Don't panic — we have a step-by-step guide and a community ready to help.</p>
+    <button class="btn btn-primary" style="background:#fff;color:var(--red);font-size:1.05rem;padding:14px 32px" onclick="go('lost')">Report a Lost Pet Right Now →</button>
+  </div>
+
+  <!-- How it works summary -->
+  <div class="section" style="background:var(--card)">
+    <div class="section-title"><h2>How It <span>Works</span></h2><p>Three simple steps to reunite a pet with their family.</p></div>
+    <div class="how-steps">
+      <div class="how-step"><div class="icon">📝</div><h3>Post Your Pet</h3><p>Fill in details and upload up to 4 photos in under 2 minutes.</p></div>
+      <div class="arrow">→</div>
+      <div class="how-step"><div class="icon">🔍</div><h3>Community Searches</h3><p>Anyone nearby can search and reach out if they spot your pet.</p></div>
+      <div class="arrow">→</div>
+      <div class="how-step"><div class="icon">🏠</div><h3>Reunited!</h3><p>Mark your pet as found and your story appears on the success page.</p></div>
+    </div>
+  </div>
+
+  <!-- Recent posts -->
+  <div class="section">
+    <div class="wrap">
+      <div class="section-title"><h2>Recently <span>Posted</span></h2><p>The latest lost pets in the community.</p></div>
+      <div id="homeRecentGrid" class="pet-grid"></div>
+      <div style="text-align:center;margin-top:24px"><button class="btn btn-outline" onclick="go('lost');showSubTab('search')">View All Lost Pets →</button></div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat"><span class="num" id="statPets">0</span><span class="lbl">🐾 Pets Posted</span></div>
+    <div class="stat"><span class="num" id="statReunited">0</span><span class="lbl">✅ Reunited</span></div>
+    <div class="stat"><span class="num" id="statMembers">0</span><span class="lbl">👥 Members</span></div>
+  </div>
+</div>
+
+<!-- ── PAGE: BROWSE ──────────────────────────── -->
+<div id="page-browse" class="page">
+  <div class="page-banner"><h1>Browse Breeds</h1><p>Learn about different breeds to find your perfect match.</p></div>
+  <div class="section wrap">
+    <div class="info-grid">
+      <div class="info-card"><div class="icon">🐕</div><h3>Golden Retriever</h3><p>Friendly, reliable, and trustworthy. Wonderful with families and children of all ages.</p></div>
+      <div class="info-card"><div class="icon">🐩</div><h3>Poodle</h3><p>Highly intelligent and energetic. One of the most trainable breeds — great for first-time owners.</p></div>
+      <div class="info-card"><div class="icon">🐈</div><h3>Siamese Cat</h3><p>Vocal, social, and affectionate. Loves being around people and does not like being alone.</p></div>
+      <div class="info-card"><div class="icon">🐱</div><h3>Maine Coon</h3><p>Gentle giants of the cat world. Playful, easy-going, and great with kids and other pets.</p></div>
+      <div class="info-card"><div class="icon">🦮</div><h3>Labrador Retriever</h3><p>One of the most popular breeds. Kind, outgoing, and always ready to play fetch.</p></div>
+      <div class="info-card"><div class="icon">🐾</div><h3>Mixed Breed</h3><p>Every mixed breed is unique. Often healthier and just as loving as any purebred.</p></div>
+      <div class="info-card"><div class="icon">🐕‍🦺</div><h3>Border Collie</h3><p>Extremely intelligent and energetic. Best for active families with space to run.</p></div>
+      <div class="info-card"><div class="icon">😺</div><h3>Ragdoll Cat</h3><p>Known for going limp when held — hence the name. Calm, gentle, and very affectionate.</p></div>
+    </div>
+    <div style="margin-top:28px;text-align:center"><a class="btn btn-primary" href="https://www.petfinder.com/animal-shelters-and-rescues/searching/" target="_blank">Find a Breed on Petfinder →</a></div>
+  </div>
+</div>
+
+<!-- ── PAGE: WHY ADOPT ───────────────────────── -->
+<div id="page-why" class="page">
+  <div class="page-banner"><h1>Why Adopt?</h1><p>Adopting a pet changes two lives — theirs and yours.</p></div>
+  <div class="section wrap">
+    <div class="info-grid">
+      <div class="info-card"><div class="icon">❤️</div><h3>Save a Life</h3><p>Millions of healthy pets are in shelters waiting for a home. Adopting gives them a second chance they deserve.</p></div>
+      <div class="info-card"><div class="icon">💰</div><h3>Lower Cost</h3><p>Adopted pets are usually already vaccinated, microchipped, and spayed or neutered — saving you hundreds of dollars.</p></div>
+      <div class="info-card"><div class="icon">🏠</div><h3>Fight Puppy Mills</h3><p>Adopting instead of buying reduces demand for inhumane breeding operations and helps end their cruelty.</p></div>
+      <div class="info-card"><div class="icon">😊</div><h3>Better for You</h3><p>Studies show pet owners have lower stress, lower blood pressure, and feel significantly less lonely.</p></div>
+      <div class="info-card"><div class="icon">🐾</div><h3>Know What You're Getting</h3><p>Shelter staff observe pets daily and can match you with one that fits your lifestyle and personality.</p></div>
+      <div class="info-card"><div class="icon">🌍</div><h3>Help the Community</h3><p>Every adoption frees up space for another animal in need and supports your local shelter.</p></div>
+    </div>
+    <div style="margin-top:28px;text-align:center"><a class="btn btn-primary" href="https://www.humanesociety.org/resources/why-you-should-adopt-shelter-pet" target="_blank">Read More at Humane Society →</a></div>
+  </div>
+</div>
+
+<!-- ── PAGE: PET CARE ────────────────────────── -->
+<div id="page-care" class="page">
+  <div class="page-banner"><h1>Pet Care Tips</h1><p>Keep your dog or cat happy, healthy, and safe.</p></div>
+  <div class="section wrap">
+    <div class="info-grid">
+      <div class="info-card"><div class="icon">🥗</div><h3>Nutrition</h3><p>Feed age-appropriate food. Fresh water must always be available. Avoid grapes, chocolate, onions, and xylitol.</p></div>
+      <div class="info-card"><div class="icon">🏃</div><h3>Exercise</h3><p>Dogs need at least 30 minutes of exercise daily. Cats benefit from interactive play sessions twice a day.</p></div>
+      <div class="info-card"><div class="icon">🏥</div><h3>Vet Visits</h3><p>Annual check-ups keep your pet healthy and catch problems early. Always keep vaccinations up to date.</p></div>
+      <div class="info-card"><div class="icon">🔖</div><h3>ID & Microchip</h3><p>Always use a collar ID tag and ask your vet about microchipping — it dramatically improves reunion chances.</p></div>
+      <div class="info-card"><div class="icon">🛁</div><h3>Grooming</h3><p>Brush your pet regularly. Trim nails monthly. Bathe dogs every 4–8 weeks depending on breed.</p></div>
+      <div class="info-card"><div class="icon">🧠</div><h3>Mental Health</h3><p>Rotate toys, train new tricks, and give your pet plenty of attention. Boredom leads to destructive behaviour.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: HOW IT WORKS ────────────────────── -->
+<div id="page-how" class="page">
+  <div class="page-banner"><h1>How It Works</h1><p>FurAndFound makes it simple to post or find a lost pet.</p></div>
+  <div class="section wrap">
+    <div class="card">
+      <ol class="steps-list">
+        <li><div><strong>Create a free account</strong><span>Sign up with your name, email, city, and a password in under a minute.</span></div></li>
+        <li><div><strong>Post your lost pet</strong><span>Fill in your pet's details, upload up to 4 photos, and add your contact number.</span></div></li>
+        <li><div><strong>Your post goes live immediately</strong><span>Anyone visiting the site can search and see your listing right away.</span></div></li>
+        <li><div><strong>Follow the 24-hour checklist</strong><span>Our step-by-step guide tells you exactly what to do after your pet goes missing.</span></div></li>
+        <li><div><strong>Mark as found when reunited</strong><span>Once your pet is home, mark your post as resolved — it gets a green REUNITED badge and your story appears on the Success Stories page.</span></div></li>
+      </ol>
+    </div>
+    <div style="margin-top:24px;text-align:center"><button class="btn btn-primary" onclick="go('lost')">Go to Lost Pet →</button></div>
+  </div>
+</div>
+
+<!-- ── PAGE: LOST PET ────────────────────────── -->
+<div id="page-lost" class="page">
+  <div class="page-banner"><h1>Lost Pet</h1><p>Use the tabs below to get help, post your pet, or search.</p></div>
+  <div class="section wrap">
+    <div class="sub-tabs">
+      <div class="sub-tab active" id="st-checklist" onclick="showSubTab('checklist')">📋 What To Do</div>
+      <div class="sub-tab" id="st-post" onclick="showSubTab('post')">📢 Post a Lost Pet</div>
+      <div class="sub-tab" id="st-search" onclick="showSubTab('search')">🔍 Search Lost Pets</div>
+    </div>
+
+    <!-- CHECKLIST -->
+    <div id="sp-checklist" class="sub-page active">
+      <div class="pet-type-btns">
+        <button class="type-btn active" id="tbDog" onclick="switchChecklist('dog')">🐶 Dog</button>
+        <button class="type-btn" id="tbCat" onclick="switchChecklist('cat')">🐱 Cat</button>
+      </div>
+      <div class="card">
+        <p style="color:var(--muted);margin-bottom:18px;font-size:.93rem">Your pet is missing. Stay calm and tick off each step as you go.</p>
+        <div id="checklistBody"></div>
+        <div id="customStepsList" style="margin-top:4px"></div>
+        <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="addCustomStep()">+ Add Custom Step</button>
+          <button class="btn btn-outline btn-sm" onclick="window.print()">🖨 Print Checklist</button>
+          <button class="btn btn-outline btn-sm" onclick="resetChecklist()">↺ Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- POST A LOST PET -->
+    <div id="sp-post" class="sub-page">
+      <div id="postAuthNotice" style="display:none" class="card">
+        <p style="margin-bottom:14px">You need to be signed in to post a lost pet.</p>
+        <button class="btn btn-primary" onclick="openModal('auth')">Sign In to Post</button>
+      </div>
+      <div id="postForm" class="card" style="max-width:620px">
+        <div id="postMsg" class="msg"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <input type="checkbox" id="urgentCheck" style="width:auto;margin-bottom:0;accent-color:var(--urg)">
+          <label for="urgentCheck" style="margin-bottom:0;color:var(--urg)">⚠️ Mark as URGENT</label>
+        </div>
+        <div class="form-row">
+          <div><label>Pet's Name *</label><input id="pName" placeholder="e.g. Buddy"></div>
+          <div><label>Animal Type *</label><select id="pType"><option value="">-- Select --</option><option>Dog</option><option>Cat</option></select></div>
+        </div>
+        <div class="form-row">
+          <div><label>Breed / Description</label><input id="pBreed" placeholder="e.g. Golden Retriever"></div>
+          <div><label>Colour</label><input id="pColour" placeholder="e.g. golden brown"></div>
+        </div>
+        <div class="form-row">
+          <div><label>Age</label><input id="pAge" placeholder="e.g. 2 years"></div>
+          <div><label>Microchip / ID Tag?</label><select id="pChip"><option value="">Not sure</option><option>Yes</option><option>No</option></select></div>
+        </div>
+        <div class="form-row">
+          <div><label>Date Went Missing *</label><input type="date" id="pDate"></div>
+          <div><label>Last Seen Location *</label><input id="pLocation" placeholder="e.g. Main Street Park"></div>
+        </div>
+        <label>Your Phone Number *</label><input id="pPhone" type="tel" placeholder="e.g. 555-1234">
+        <label>Extra Details</label><textarea id="pDetails" placeholder="Collar colour, special markings, responds to name…"></textarea>
+        <label>Photos (up to 4)</label>
+        <div class="photo-slots" id="postPhotoSlots"></div>
+        <button class="btn btn-green btn-full" onclick="submitLostPost()" id="postSubmitBtn">Post Lost Pet</button>
+      </div>
+    </div>
+
+    <!-- SEARCH LOST PETS -->
+    <div id="sp-search" class="sub-page">
+      <div class="filters">
+        <input id="searchQ" placeholder="Search by name or location…" oninput="renderLostGrid()">
+        <select id="searchType" onchange="renderLostGrid()"><option value="">All Animals</option><option>Dog</option><option>Cat</option></select>
+        <select id="searchSort" onchange="renderLostGrid()"><option value="new">Newest First</option><option value="old">Oldest First</option></select>
+        <select id="searchDate" onchange="renderLostGrid()"><option value="">All Time</option><option value="7">Last 7 Days</option><option value="30">Last 30 Days</option></select>
+      </div>
+      <div id="lostGrid" class="pet-grid"></div>
+      <div id="lostNone" class="no-results" style="display:none">No lost pets found. <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="showSubTab('post')">Post one now</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: FOUND A PET ─────────────────────── -->
+<div id="page-found" class="page">
+  <div class="page-banner"><h1>Found a Pet</h1><p>Found a stray? Post it here so the owner can find it.</p></div>
+  <div class="section wrap">
+    <div class="sub-tabs">
+      <div class="sub-tab active" id="ft-post" onclick="showFoundTab('fpost')">📢 Post a Found Pet</div>
+      <div class="sub-tab" id="ft-search" onclick="showFoundTab('fsearch')">🔍 Search Found Pets</div>
+    </div>
+    <div id="fp-fpost" class="sub-page active">
+      <div class="card" style="max-width:620px">
+        <div id="foundMsg" class="msg"></div>
+        <div class="form-row">
+          <div><label>Animal Type *</label><select id="fType"><option value="">-- Select --</option><option>Dog</option><option>Cat</option></select></div>
+          <div><label>Colour</label><input id="fColour" placeholder="e.g. black and white"></div>
+        </div>
+        <label>Description *</label><input id="fDesc" placeholder="e.g. small fluffy dog, no collar">
+        <div class="form-row">
+          <div><label>Breed (if known)</label><input id="fBreed" placeholder="e.g. Labrador mix"></div>
+          <div><label>Date Found *</label><input type="date" id="fDate"></div>
+        </div>
+        <label>Where You Found It *</label><input id="fLocation" placeholder="e.g. Oak Street near the park">
+        <label>Your Phone Number *</label><input id="fPhone" type="tel" placeholder="e.g. 555-5678">
+        <label>Extra Details</label><textarea id="fDetails" placeholder="Behaviour, markings, condition…"></textarea>
+        <label>Photos (up to 4)</label>
+        <div class="photo-slots" id="foundPhotoSlots"></div>
+        <button class="btn btn-green btn-full" onclick="submitFoundPost()">Post Found Pet</button>
+      </div>
+    </div>
+    <div id="fp-fsearch" class="sub-page">
+      <div class="filters">
+        <input id="fsearchQ" placeholder="Search by description or location…" oninput="renderFoundGrid()">
+        <select id="fsearchType" onchange="renderFoundGrid()"><option value="">All Animals</option><option>Dog</option><option>Cat</option></select>
+      </div>
+      <div id="foundGrid" class="pet-grid"></div>
+      <div id="foundNone" class="no-results" style="display:none">No found pets posted yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: SUCCESS STORIES ─────────────────── -->
+<div id="page-stories" class="page">
+  <div class="page-banner"><h1>Success Stories</h1><p>Pets that found their way home thanks to FurAndFound.</p></div>
+  <div class="section wrap">
+    <div id="storiesGrid" class="pet-grid"></div>
+    <div id="storiesNone" class="no-results" style="display:none">No success stories yet — be the first to reunite a pet! 🐾</div>
+  </div>
+</div>
+
+<!-- ── PAGE: FAQ ─────────────────────────────── -->
+<div id="page-faq" class="page">
+  <div class="page-banner"><h1>FAQ</h1><p>Answers to the most common questions.</p></div>
+  <div class="section wrap">
+    <div class="card" id="faqBody"></div>
+  </div>
+</div>
+
+<!-- ── PAGE: CONTACT ─────────────────────────── -->
+<div id="page-contact" class="page">
+  <div class="page-banner"><h1>Contact Us</h1><p>Have a question? Reach out to the FurAndFound team.</p></div>
+  <div class="section wrap">
+    <div class="card" style="max-width:520px">
+      <div id="contactMsg" class="msg"></div>
+      <div class="form-row">
+        <div><label>Your Name</label><input id="cName" placeholder="First and last name"></div>
+        <div><label>Your Email</label><input id="cEmail" type="email" placeholder="you@email.com"></div>
+      </div>
+      <label>Subject</label><input id="cSubject" placeholder="What is your message about?">
+      <label>Message</label><textarea id="cMessage" placeholder="Write your message here…" style="min-height:120px"></textarea>
+      <button class="btn btn-primary btn-full" onclick="submitContact()">Send Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: ABOUT ───────────────────────────── -->
+<div id="page-about" class="page">
+  <div class="page-banner"><h1>About Us</h1><p>Who we are and why we built FurAndFound.</p></div>
+  <div class="section wrap">
+    <div class="card" style="max-width:680px;margin:0 auto;line-height:1.8">
+      <h2 style="color:var(--or);margin-bottom:12px">Our Mission</h2>
+      <p style="margin-bottom:16px">FurAndFound was built to make sure no pet owner ever feels helpless when their dog or cat goes missing. We give owners a calm, step-by-step plan and a community that rallies around them.</p>
+      <h2 style="color:var(--or);margin-bottom:12px;margin-top:24px">Who Made This</h2>
+      <p style="margin-bottom:16px">FurAndFound is a Grade 6 class project created by Marcus Kwan. It was built to solve a real problem: first-time pet owners don't know what to do when their pet disappears.</p>
+      <h2 style="color:var(--or);margin-bottom:12px;margin-top:24px">What We Believe</h2>
+      <ul style="margin-left:20px;color:var(--muted);font-size:.93rem">
+        <li>Every pet deserves to go home.</li>
+        <li>Information should be simple and calm in a crisis.</li>
+        <li>Communities are more powerful than any single person.</li>
+        <li>Adopting is always better than buying.</li>
+      </ul>
+      <h2 style="color:var(--or);margin-bottom:12px;margin-top:24px">Our Partners</h2>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:8px">
+        <a href="https://www.petfinder.com" target="_blank" class="btn btn-outline btn-sm">Petfinder</a>
+        <a href="https://www.humanesociety.org" target="_blank" class="btn btn-outline btn-sm">Humane Society</a>
+        <a href="https://www.aspca.org" target="_blank" class="btn btn-outline btn-sm">ASPCA</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: SHELTERS ────────────────────────── -->
+<div id="page-shelters" class="page">
+  <div class="page-banner"><h1>Local Shelters & Vets</h1><p>Find real animal shelters and vets near you — type any city, zip code, or address.</p></div>
+  <div class="section wrap">
+    <div style="display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap;align-items:flex-start">
+      <input id="shelterLocation" placeholder="Enter your city, zip code, or address..." style="flex:1;min-width:220px;margin-bottom:0" onkeydown="if(event.key==='Enter')searchShelters()">
+      <button class="btn btn-primary" onclick="searchShelters()" style="flex-shrink:0">Find Shelters</button>
+    </div>
+    <div id="shelterStatus" style="display:none;text-align:center;padding:28px 0;color:var(--muted);font-size:.95rem"></div>
+    <div class="info-grid" id="shelterGrid">
+      <div style="text-align:center;grid-column:1/-1;padding:48px 0;color:var(--muted)">
+        <div style="font-size:3.5rem;margin-bottom:14px">📍</div>
+        <p style="font-size:1rem;font-weight:600;margin-bottom:6px">No location entered yet</p>
+        <p style="font-size:.88rem">Type your city or zip code above and click <strong>Find Shelters</strong> to see real shelters near you.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: PROFILE ─────────────────────────── -->
+<div id="page-profile" class="page">
+  <div class="page-banner"><h1>My Profile</h1><p>Manage your account and your posts.</p></div>
+  <div class="section wrap">
+    <div id="profileNotAuth" style="display:none" class="card">
+      <p style="margin-bottom:14px">You need to be signed in to view your profile.</p>
+      <button class="btn btn-primary" onclick="openModal('auth')">Sign In</button>
+    </div>
+    <div id="profileContent">
+      <h2 style="margin-bottom:16px;font-size:1.2rem">Account Info</h2>
+      <div class="profile-info" id="profileInfo"></div>
+      <div id="editProfileForm" style="display:none" class="card" style="max-width:420px;margin-bottom:24px">
+        <h3 style="margin-bottom:14px">Edit Profile</h3>
+        <label>Name</label><input id="editName">
+        <label>Email</label><input id="editEmail" type="email">
+        <label>City</label><input id="editCity">
+        <label>New Password (leave blank to keep current)</label><input id="editPass" type="password" placeholder="New password">
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-primary btn-sm" onclick="saveProfile()">Save Changes</button>
+          <button class="btn btn-outline btn-sm" onclick="document.getElementById('editProfileForm').style.display='none'">Cancel</button>
+        </div>
+      </div>
+      <h2 style="margin-bottom:16px;font-size:1.2rem;margin-top:28px">My Lost Pet Posts</h2>
+      <div id="myPostsGrid" class="pet-grid"></div>
+      <div id="myPostsNone" class="no-results" style="display:none">You haven't posted any lost pets yet. <button class="btn btn-outline btn-sm" style="margin-left:8px" onclick="go('lost');showSubTab('post')">Post one now</button></div>
+      <h2 style="margin-bottom:16px;font-size:1.2rem;margin-top:32px">Messages From Finders</h2>
+      <div id="myMessages"></div>
+      <div id="myMsgNone" class="no-results" style="display:none">No messages yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE: PET DETAIL ──────────────────────── -->
+<div id="page-detail" class="page">
+  <div class="section wrap">
+    <button class="btn btn-outline btn-sm" onclick="goBack()" style="margin-bottom:20px">← Back</button>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<!-- ── MODAL: AUTH ───────────────────────────── -->
+<div id="authModal" class="modal-bg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('authModal')">✕</button>
+    <div class="paw">🐾</div>
+
+    <!-- Google Sign-In button (shared across login & signup) -->
+    <div id="googleSignInWrap" style="margin-bottom:4px">
+      <div id="googleBtnContainer" style="display:flex;justify-content:center;min-height:44px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:14px;margin-bottom:4px">
+        <hr style="flex:1;border:none;border-top:1px solid var(--border)">
+        <span style="color:var(--muted);font-size:.82rem;white-space:nowrap">or continue with email</span>
+        <hr style="flex:1;border:none;border-top:1px solid var(--border)">
+      </div>
+    </div>
+
+    <div id="loginSection">
+      <h2>Welcome Back</h2>
+      <p class="sub">Sign in to post a lost pet.</p>
+      <div id="loginMsg" class="msg"></div>
+      <label>Email</label><input id="loginEmail" type="email" placeholder="you@email.com">
+      <label>Password</label><input id="loginPass" type="password" placeholder="Your password">
+      <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+      <p style="margin-top:12px;font-size:.85rem;color:var(--muted)">No account? <span class="toggle-link" onclick="toggleAuth()">Sign up for free</span></p>
+      <p style="margin-top:6px;font-size:.85rem"><span class="toggle-link" onclick="toggleForgot()">Forgot my password</span></p>
+    </div>
+    <div id="signupSection" style="display:none">
+      <h2>Create Account</h2>
+      <p class="sub">Free to join. No card needed.</p>
+      <div id="signupMsg" class="msg"></div>
+      <label>Your Name</label><input id="suName" placeholder="First and last name">
+      <label>Email</label><input id="suEmail" type="email" placeholder="you@email.com">
+      <label>City / Neighbourhood</label><input id="suCity" placeholder="e.g. Vancouver">
+      <label>Password</label><input id="suPass" type="password" placeholder="Choose a password">
+      <button class="btn btn-green btn-full" onclick="doSignup()">Create Account</button>
+      <p style="margin-top:12px;font-size:.85rem;color:var(--muted)">Already have an account? <span class="toggle-link" onclick="toggleAuth()">Sign in here</span></p>
+    </div>
+    <div id="forgotSection" style="display:none">
+      <h2>Reset Password</h2>
+      <p class="sub">Enter your email to reset your password.</p>
+      <div id="forgotMsg" class="msg"></div>
+      <label>Email</label><input id="forgotEmail" type="email" placeholder="you@email.com">
+      <label>New Password</label><input id="forgotPass" type="password" placeholder="Choose a new password">
+      <button class="btn btn-primary btn-full" onclick="doForgot()">Reset Password</button>
+      <p style="margin-top:12px;font-size:.85rem"><span class="toggle-link" onclick="toggleForgot()">← Back to sign in</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: FOUND THIS PET ─────────────────── -->
+<div id="foundModal" class="modal-bg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('foundModal')">✕</button>
+    <h2>I Think I Found This Pet</h2>
+    <p class="sub" id="foundModalSub">Leave a message for the owner.</p>
+    <div id="foundContactInfo" style="margin-bottom:16px">
+      <button class="btn btn-outline btn-sm" onclick="revealPhone()">📞 Show Contact Info</button>
+      <span id="revealedPhone" style="display:none;font-weight:700;color:var(--or);margin-left:10px"></span>
+    </div>
+    <label>Your Name (optional)</label><input id="finderName" placeholder="Leave blank for anonymous">
+    <label>Your Message</label><textarea id="finderMsg" placeholder="Where did you see this pet? Describe what you found…"></textarea>
+    <button class="btn btn-primary btn-full" onclick="sendFoundMessage()">Send Message to Owner</button>
+  </div>
+</div>
+
+<!-- ── MODAL: REPORT ─────────────────────────── -->
+<div id="reportModal" class="modal-bg">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('reportModal')">✕</button>
+    <h2>Report This Post</h2>
+    <p class="sub">Why are you reporting this?</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px" id="reportOptions">
+      <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="radio" name="report" value="Fake or spam" style="width:auto;margin-bottom:0"> Fake or spam</label>
+      <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="radio" name="report" value="Incorrect information" style="width:auto;margin-bottom:0"> Incorrect information</label>
+      <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="radio" name="report" value="Inappropriate content" style="width:auto;margin-bottom:0"> Inappropriate content</label>
+      <label style="font-weight:400;display:flex;gap:8px;align-items:center"><input type="radio" name="report" value="Other" style="width:auto;margin-bottom:0"> Other</label>
+    </div>
+    <button class="btn btn-red btn-full" onclick="submitReport()">Submit Report</button>
+  </div>
+</div>
+
+<!-- ── LIGHTBOX ──────────────────────────────── -->
+<div id="lightbox">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <button class="lb-prev" onclick="lbNav(-1)">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-next" onclick="lbNav(1)">›</button>
+</div>
+
+<!-- ── TOAST ─────────────────────────────────── -->
+<div id="toastContainer"></div>
+
+<!-- ── FOOTER ────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo">🐾 FurAndFound</div>
+      <p>Helping reunite pets with their families, one post at a time.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Quick Links</h4>
+      <a onclick="go('home')">Home</a>
+      <a onclick="go('lost')">Lost Pet</a>
+      <a onclick="go('found')">Found a Pet</a>
+      <a onclick="go('stories')">Success Stories</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a onclick="go('faq')">FAQ</a>
+      <a onclick="go('contact')">Contact Us</a>
+      <a onclick="go('about')">About Us</a>
+      <a onclick="go('shelters')">Local Shelters</a>
+    </div>
+    <div class="footer-col">
+      <h4>External Links</h4>
+      <a href="https://www.petfinder.com" target="_blank">Petfinder</a>
+      <a href="https://www.humanesociety.org" target="_blank">Humane Society</a>
+      <a href="https://www.aspca.org" target="_blank">ASPCA</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 FurAndFound. Made with ❤️ by Marcus Kwan.</div>
+</footer>
+
+<script>
+// ── GOOGLE CLIENT ID ───────────────────────────
+// Paste your Client ID from console.cloud.google.com here:
+const GOOGLE_CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID_HERE';
+
+// ── DATA ───────────────────────────────────────
+const db = {
+  users:   () => JSON.parse(localStorage.getItem('faf_users') || '[]'),
+  pets:    () => JSON.parse(localStorage.getItem('faf_pets')  || '[]'),
+  found:   () => JSON.parse(localStorage.getItem('faf_found') || '[]'),
+  msgs:    () => JSON.parse(localStorage.getItem('faf_msgs')  || '[]'),
+  contact: () => JSON.parse(localStorage.getItem('faf_contact') || '[]'),
+  save: (k, v) => localStorage.setItem('faf_' + k, JSON.stringify(v)),
+  who: () => localStorage.getItem('faf_me') || null,
+  me: () => db.users().find(u => u.email === db.who()) || null,
+};
+
+// ── NAV ────────────────────────────────────────
+let prevPage = 'home';
+function go(page) {
+  prevPage = document.querySelector('.page.active')?.id.replace('page-','') || 'home';
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const nl = document.getElementById('nl-' + page);
+  if (nl) nl.classList.add('active');
+  window.scrollTo(0, 0);
+  if (page === 'home') refreshHome();
+  if (page === 'lost') { buildChecklist(); renderLostGrid(); checkPostAuth(); }
+  if (page === 'found') renderFoundGrid();
+  if (page === 'stories') renderStories();
+  if (page === 'faq') buildFaq();
+  if (page === 'profile') renderProfile();
+}
+function goBack() { go(prevPage); }
+
+function toggleMenu() { document.getElementById('mobileMenu').classList.toggle('open'); }
+function closeMenu() { document.getElementById('mobileMenu').classList.remove('open'); }
+
+// ── DARK MODE ──────────────────────────────────
+function toggleDark() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', dark ? 'light' : 'dark');
+  document.getElementById('darkBtn').textContent = dark ? '🌙' : '☀️';
+  localStorage.setItem('faf_dark', dark ? '' : '1');
+}
+
+// ── AUTH ───────────────────────────────────────
+function openModal(id) { document.getElementById(id + 'Modal').classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function toggleAuth() {
+  const ls = document.getElementById('loginSection');
+  const ss = document.getElementById('signupSection');
+  ls.style.display = ls.style.display === 'none' ? '' : 'none';
+  ss.style.display = ss.style.display === 'none' ? '' : 'none';
+}
+function toggleForgot() {
+  const ls = document.getElementById('loginSection');
+  const fs = document.getElementById('forgotSection');
+  ls.style.display = ls.style.display === 'none' ? '' : 'none';
+  fs.style.display = fs.style.display === 'none' ? '' : 'none';
+}
+function doSignup() {
+  const name = v('suName'), email = v('suEmail'), city = v('suCity'), pass = v('suPass');
+  if (!name || !email || !pass) { showMsg('signupMsg','Please fill in all fields.','err'); return; }
+  const users = db.users();
+  if (users.find(u => u.email === email)) { showMsg('signupMsg','That email is already registered.','err'); return; }
+  users.push({ name, email, city, pass });
+  db.save('users', users);
+  localStorage.setItem('faf_me', email);
+  updateAuthUI();
+  closeModal('authModal');
+  toast('Welcome, ' + name.split(' ')[0] + '! 🐾');
+}
+function doLogin() {
+  const email = v('loginEmail'), pass = v('loginPass');
+  const user = db.users().find(u => u.email === email && u.pass === pass);
+  if (!user) { showMsg('loginMsg','Incorrect email or password.','err'); return; }
+  localStorage.setItem('faf_me', email);
+  updateAuthUI();
+  closeModal('authModal');
+  toast('Welcome back, ' + user.name.split(' ')[0] + '! 🐾');
+  checkPostAuth();
+}
+function doLogout() {
+  localStorage.removeItem('faf_me');
+  if (window.google) google.accounts.id.disableAutoSelect();
+  updateAuthUI();
+  if (document.getElementById('page-profile').classList.contains('active')) go('home');
+  checkPostAuth();
+}
+function handleGoogleSignIn(response) {
+  try {
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const { name, email, picture, sub } = payload;
+    const users = db.users();
+    let user = users.find(u => u.email === email);
+    if (!user) {
+      user = { name, email, city: '', pass: null, googleId: sub, avatar: picture };
+      users.push(user);
+      db.save('users', users);
+    }
+    localStorage.setItem('faf_me', email);
+    updateAuthUI();
+    closeModal('authModal');
+    toast('Welcome, ' + name.split(' ')[0] + '! 🐾');
+    checkPostAuth();
+  } catch(e) { toast('Google sign-in failed. Please try again.', 'error'); }
+}
+function initGoogleSignIn() {
+  if (!window.google || !GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'YOUR_GOOGLE_CLIENT_ID_HERE') return;
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleGoogleSignIn });
+  const container = document.getElementById('googleBtnContainer');
+  if (container) {
+    google.accounts.id.renderButton(container, { type: 'standard', size: 'large', theme: 'outline', text: 'signin_with', shape: 'pill', width: 300 });
+  }
+}
+function doForgot() {
+  const email = v('forgotEmail'), pass = v('forgotPass');
+  if (!email || !pass) { showMsg('forgotMsg','Please fill in both fields.','err'); return; }
+  const users = db.users();
+  const idx = users.findIndex(u => u.email === email);
+  if (idx === -1) { showMsg('forgotMsg','No account found with that email.','err'); return; }
+  users[idx].pass = pass;
+  db.save('users', users);
+  showMsg('forgotMsg','Password reset! You can now sign in.','ok');
+}
+function updateAuthUI() {
+  const me = db.me();
+  document.getElementById('signinBtn').style.display  = me ? 'none' : '';
+  document.getElementById('signoutBtn').style.display = me ? '' : 'none';
+  const chip = document.getElementById('userChip');
+  chip.style.display = me ? '' : 'none';
+  if (me) chip.textContent = '👤 ' + me.name.split(' ')[0];
+}
+function checkPostAuth() {
+  const auth = !!db.who();
+  const notice = document.getElementById('postAuthNotice');
+  const form = document.getElementById('postForm');
+  if (notice) notice.style.display = auth ? 'none' : '';
+  if (form) form.style.display = auth ? '' : 'none';
+}
+
+// ── PHOTO SLOTS ────────────────────────────────
+function buildPhotoSlots(containerId, photos) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  c.innerHTML = '';
+  for (let i = 0; i < 4; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'photo-slot';
+    slot.dataset.idx = i;
+    if (photos[i]) {
+      slot.innerHTML = `<img src="${photos[i]}" alt="photo"><button class="rm" onclick="removePhoto('${containerId}',${i},event)">✕</button>`;
+    } else {
+      slot.innerHTML = `<span class="plus">+</span><input type="file" accept="image/*" onchange="onPhoto(this,'${containerId}',${i})">`;
+    }
+    c.appendChild(slot);
+  }
+}
+const _photos = { postPhotoSlots: ['','','',''], foundPhotoSlots: ['','','',''] };
+function onPhoto(inp, cid, idx) {
+  const f = inp.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = e => { _photos[cid][idx] = e.target.result; buildPhotoSlots(cid, _photos[cid]); };
+  r.readAsDataURL(f);
+}
+function removePhoto(cid, idx, e) {
+  e.stopPropagation();
+  _photos[cid][idx] = '';
+  buildPhotoSlots(cid, _photos[cid]);
+}
+
+// ── CHECKLIST ──────────────────────────────────
+const DOG_STEPS = [
+  ['Search your home and yard first','Check under beds, behind furniture, and in all closets.'],
+  ['Walk around the neighbourhood','Call their name. Bring a favourite toy or treat.'],
+  ['Call your local animal shelter','Give a description, ask them to hold your dog if found.'],
+  ['Contact your vet','Let them know in case someone brings your dog in.'],
+  ['Post your dog on this site','Add a photo so neighbours can help.'],
+  ['Put up posters in your neighbourhood','Include photo, name, and your phone number.'],
+  ['Ask your neighbours','Knock on nearby doors — someone may have seen your dog.'],
+  ['Check back with the shelter daily','New animals come in every day. Keep calling.'],
+];
+const CAT_STEPS = [
+  ['Search inside your home thoroughly','Cats hide in very small, dark spaces.'],
+  ['Check your yard at dusk and dawn','Cats are most active at these times.'],
+  ['Set out food and their litter box outside','Familiar smells help cats find their way home.'],
+  ['Call your local animal shelter','Describe your cat\'s markings and colour.'],
+  ['Contact your vet','Alert them in case someone brings your cat in.'],
+  ['Post your cat on this site','Add a clear close-up photo.'],
+  ['Put up posters in your neighbourhood','Include photo, name, and your phone number.'],
+  ['Ask neighbours to check garages and sheds','Cats often get accidentally trapped inside.'],
+];
+let _checkType = 'dog';
+function switchChecklist(type) {
+  _checkType = type;
+  document.getElementById('tbDog').className = 'type-btn' + (type === 'dog' ? ' active' : '');
+  document.getElementById('tbCat').className = 'type-btn' + (type === 'cat' ? ' active' : '');
+  buildChecklist();
+}
+function buildChecklist() {
+  const steps = _checkType === 'dog' ? DOG_STEPS : CAT_STEPS;
+  const key = 'faf_chk_' + _checkType;
+  checkAutoReset();
+  const saved = JSON.parse(localStorage.getItem(key) || '[]');
+  const body = document.getElementById('checklistBody');
+  if (!body) return;
+  body.innerHTML = '';
+  steps.forEach(([title, tip], i) => {
+    const done = saved.includes(i);
+    const d = document.createElement('div');
+    d.className = 'check-step' + (done ? ' step-done' : '');
+    d.innerHTML = `<div class="step-num">${done ? '✓' : i+1}</div>
+      <div class="step-body"><strong>${title}</strong><span>${tip}</span></div>
+      <input type="checkbox" class="step-cb" ${done?'checked':''} onchange="toggleStep(${i},this)">`;
+    body.appendChild(d);
+  });
+  renderCustomSteps();
+}
+function toggleStep(i, cb) {
+  const key = 'faf_chk_' + _checkType;
+  let saved = JSON.parse(localStorage.getItem(key) || '[]');
+  if (cb.checked) { if (!saved.includes(i)) saved.push(i); }
+  else { saved = saved.filter(x => x !== i); }
+  localStorage.setItem(key, JSON.stringify(saved));
+  buildChecklist();
+}
+function checkAutoReset() {
+  const key = 'faf_reset_' + _checkType;
+  const last = localStorage.getItem(key);
+  if (!last || (Date.now() - parseInt(last)) > 30*24*60*60*1000) {
+    localStorage.removeItem('faf_chk_' + _checkType);
+    localStorage.setItem(key, Date.now());
+  }
+}
+function resetChecklist() {
+  localStorage.removeItem('faf_chk_' + _checkType);
+  localStorage.setItem('faf_reset_' + _checkType, Date.now());
+  buildChecklist();
+  toast('Checklist reset.');
+}
+function addCustomStep() {
+  const text = prompt('Enter your custom step (plain text only):');
+  if (!text || text.trim().length < 3) return;
+  const clean = text.trim().replace(/[<>"'&]/g,'');
+  const key = 'faf_custom_' + _checkType;
+  const steps = JSON.parse(localStorage.getItem(key) || '[]');
+  if (steps.length >= 10) { toast('Maximum 10 custom steps reached.','error'); return; }
+  steps.push(clean);
+  localStorage.setItem(key, JSON.stringify(steps));
+  renderCustomSteps();
+}
+function renderCustomSteps() {
+  const key = 'faf_custom_' + _checkType;
+  const steps = JSON.parse(localStorage.getItem(key) || '[]');
+  const c = document.getElementById('customStepsList');
+  if (!c) return;
+  c.innerHTML = '';
+  steps.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'check-step';
+    d.style.borderTop = '1px solid var(--border)';
+    d.innerHTML = `<div class="step-num" style="background:var(--muted)">✏️</div>
+      <div class="step-body"><strong>${s}</strong></div>
+      <button onclick="removeCustomStep(${i})" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:1rem">✕</button>`;
+    c.appendChild(d);
+  });
+}
+function removeCustomStep(i) {
+  const key = 'faf_custom_' + _checkType;
+  const steps = JSON.parse(localStorage.getItem(key) || '[]');
+  steps.splice(i, 1);
+  localStorage.setItem(key, JSON.stringify(steps));
+  renderCustomSteps();
+}
+
+// ── POST LOST PET ──────────────────────────────
+function submitLostPost() {
+  const name = v('pName'), type = v('pType'), location = v('pLocation'),
+        phone = v('pPhone'), date = v('pDate');
+  if (!name || !type || !location || !phone || !date) {
+    showMsg('postMsg','Please fill in all required fields (marked with *).','err'); return;
+  }
+  const pets = db.pets();
+  const id = 'pet_' + Date.now();
+  pets.unshift({
+    id, name, type, breed: v('pBreed'), colour: v('pColour'), age: v('pAge'),
+    chip: v('pChip'), dateMissing: date, location, phone, details: v('pDetails'),
+    photos: _photos.postPhotoSlots.filter(Boolean),
+    urgent: document.getElementById('urgentCheck').checked,
+    reunited: false, postedBy: db.who(), postedDate: new Date().toLocaleDateString(),
+    comments: [], reports: []
+  });
+  db.save('pets', pets);
+  showMsg('postMsg', name + ' has been posted! Check the Search tab.', 'ok');
+  toast(name + ' posted successfully! 🐾');
+  ['pName','pBreed','pColour','pAge','pLocation','pPhone','pDetails'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('pType').value = '';
+  document.getElementById('pChip').value = '';
+  document.getElementById('pDate').value = '';
+  document.getElementById('urgentCheck').checked = false;
+  _photos.postPhotoSlots = ['','','',''];
+  buildPhotoSlots('postPhotoSlots', _photos.postPhotoSlots);
+}
+
+// ── RENDER LOST PET GRID ───────────────────────
+function renderLostGrid() {
+  const q = v('searchQ').toLowerCase();
+  const type = v('searchType');
+  const sort = v('searchSort') || 'new';
+  const days = parseInt(v('searchDate')) || 0;
+  let pets = db.pets().filter(p => {
+    if (type && p.type !== type) return false;
+    if (q && !p.name.toLowerCase().includes(q) && !p.location.toLowerCase().includes(q)) return false;
+    if (days) {
+      const d = new Date(p.dateMissing);
+      if ((Date.now() - d.getTime()) > days * 86400000) return false;
+    }
+    return true;
+  });
+  if (sort === 'old') pets.reverse();
+  const grid = document.getElementById('lostGrid');
+  const none = document.getElementById('lostNone');
+  if (!grid) return;
+  grid.innerHTML = '';
+  none.style.display = pets.length ? 'none' : 'block';
+  pets.forEach(p => grid.appendChild(makePetCard(p, 'lost')));
+}
+
+function makePetCard(p, kind) {
+  const card = document.createElement('div');
+  card.className = 'pet-card';
+  card.onclick = () => showDetail(p.id, kind);
+  const img = p.photos && p.photos[0]
+    ? `<img class="pet-card-img" src="${p.photos[0]}" alt="${p.name}">`
+    : `<div class="pet-card-ph">${p.type === 'Cat' ? '🐱' : '🐶'}</div>`;
+  const urgBadge = p.urgent ? `<span class="corner-badge badge badge-urgent">URGENT</span>` : '';
+  const reunBadge = p.reunited ? `<span class="corner-badge badge badge-reunited">REUNITED</span>` : '';
+  const foundBadge = kind === 'found' ? `<span class="corner-badge badge badge-found">FOUND</span>` : '';
+  const ownerName = kind === 'lost' ? (db.users().find(u=>u.email===p.postedBy)?.name?.split(' ')[0] || '') : '';
+  card.innerHTML = `${img}${urgBadge}${reunBadge}${foundBadge}
+    <div class="pet-card-body">
+      <strong>${p.name || p.description || 'Unknown'}</strong>
+      <span class="badge badge-type">${p.type}</span>
+      ${ownerName ? `<p>👤 ${ownerName}</p>` : ''}
+      ${p.location ? `<p>📍 ${p.location}</p>` : ''}
+      ${(p.dateMissing||p.dateFound) ? `<p>📅 ${p.dateMissing||p.dateFound}</p>` : ''}
+    </div>`;
+  return card;
+}
+
+// ── PET DETAIL ─────────────────────────────────
+let _currentDetailId = null, _currentDetailKind = 'lost';
+function showDetail(id, kind) {
+  _currentDetailId = id;
+  _currentDetailKind = kind;
+  const pets = kind === 'lost' ? db.pets() : db.found();
+  const p = pets.find(x => x.id === id);
+  if (!p) return;
+  const owner = kind === 'lost' ? db.users().find(u => u.email === p.postedBy) : null;
+  const photos = (p.photos || []).filter(Boolean);
+  const isOwner = db.who() && db.who() === p.postedBy;
+
+  const galleryHtml = photos.length
+    ? `<div class="detail-gallery">${photos.map((ph,i) => `<img src="${ph}" onclick="openLightbox(${i})">`).join('')}</div>`
+    : `<div style="height:120px;background:var(--inp);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:4rem;margin-bottom:24px">${p.type==='Cat'?'🐱':'🐶'}</div>`;
+
+  const badges = [
+    p.urgent ? `<span class="badge badge-urgent" style="font-size:.9rem;padding:4px 14px">⚠️ URGENT</span>` : '',
+    p.reunited ? `<span class="badge badge-reunited" style="font-size:.9rem;padding:4px 14px">✅ REUNITED</span>` : '',
+  ].join('');
+
+  const infoFields = [
+    ['Animal', p.type],
+    ['Colour', p.colour],
+    ['Breed', p.breed],
+    ['Age', p.age],
+    ['Microchip/ID', p.chip],
+    ['Date Missing', p.dateMissing || p.dateFound],
+    ['Last Seen', p.location],
+    ['Posted', p.postedDate],
+    owner ? ['Owner', owner.name + (owner.city ? `, ${owner.city}` : '')] : null,
+  ].filter(Boolean).filter(f => f[1]);
+
+  const comments = (p.comments || []).slice().reverse();
+
+  document.getElementById('detailContent').innerHTML = `
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px">
+      <h1 style="font-size:1.8rem;font-weight:800">${p.name || p.description || 'Found Pet'}</h1>
+      ${badges}
+    </div>
+    ${galleryHtml}
+    <div class="detail-info-grid">
+      ${infoFields.map(([l,v]) => `<div class="detail-field"><div class="lbl">${l}</div><div class="val">${v}</div></div>`).join('')}
+    </div>
+    ${p.details ? `<div class="card" style="margin-bottom:20px"><strong>Details:</strong><p style="margin-top:6px;color:var(--muted);font-size:.93rem">${p.details}</p></div>` : ''}
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px">
+      <button class="btn btn-outline btn-sm" onclick="revealPhoneInline('${p.phone}',this)">📞 Show Contact Info</button>
+      <button class="btn btn-outline btn-sm" onclick="openShare('${id}','${kind}')">📤 Share</button>
+      <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" onclick="openReport('${id}','${kind}')">⚑ Report</button>
+      ${!p.reunited && kind === 'lost' ? `<button class="btn btn-primary" onclick="openFoundModal('${id}')">🐾 I Think I Found This Pet</button>` : ''}
+      ${isOwner && !p.reunited ? `<button class="btn btn-green btn-sm" onclick="markReunited('${id}')">✅ My Pet Was Found!</button>` : ''}
+    </div>
+    <div id="sharePanel" style="display:none;margin-bottom:24px" class="card">
+      <strong>Share this post:</strong>
+      <div class="share-btns">
+        <button class="btn btn-primary btn-sm" onclick="shareFB()">Facebook</button>
+        <button class="btn btn-primary btn-sm" style="background:#1da1f2" onclick="shareX()">X / Twitter</button>
+        <button class="btn btn-outline btn-sm" onclick="copyLink()">📋 Copy Link</button>
+      </div>
+    </div>
+    <h2 style="font-size:1.1rem;font-weight:700;margin-bottom:16px">Comments (${comments.length})</h2>
+    <div id="commentsBody">${comments.length ? comments.map(c => `
+      <div class="comment-item"><p>${c.text}</p><div class="meta">— ${c.name||'Anonymous'}, ${c.date}</div></div>`).join('') : '<p style="color:var(--muted);font-size:.9rem">No comments yet. Be the first to help!</p>'}</div>
+    <div style="margin-top:16px">
+      <label>Leave a comment</label>
+      <input id="cmtName" placeholder="Your name (optional)" style="margin-bottom:8px">
+      <textarea id="cmtText" placeholder="Did you see this pet? Leave a helpful message…"></textarea>
+      <button class="btn btn-primary btn-sm" onclick="postComment('${id}','${kind}')">Post Comment</button>
+    </div>
+  `;
+  _lbPhotos = photos;
+  go('detail');
+}
+
+let _lbPhotos = [], _lbIdx = 0;
+function openLightbox(i) {
+  _lbIdx = i;
+  document.getElementById('lbImg').src = _lbPhotos[i];
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
+function lbNav(dir) {
+  _lbIdx = (_lbIdx + dir + _lbPhotos.length) % _lbPhotos.length;
+  document.getElementById('lbImg').src = _lbPhotos[_lbIdx];
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeLightbox(); closeModal('authModal'); closeModal('foundModal'); closeModal('reportModal'); } });
+
+function revealPhoneInline(phone, btn) {
+  btn.textContent = '📞 ' + phone;
+  btn.style.color = 'var(--or)';
+  btn.onclick = null;
+}
+
+function openShare(id, kind) {
+  const p = document.getElementById('sharePanel');
+  p.style.display = p.style.display === 'none' ? '' : 'none';
+}
+function shareFB() { window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(location.href), '_blank'); }
+function shareX() { window.open('https://twitter.com/intent/tweet?text=Help find this lost pet!&url=' + encodeURIComponent(location.href), '_blank'); }
+function copyLink() { navigator.clipboard.writeText(location.href).then(() => toast('Link copied!')); }
+
+let _reportId, _reportKind;
+function openReport(id, kind) { _reportId = id; _reportKind = kind; openModal('report'); }
+function submitReport() {
+  const reason = document.querySelector('input[name="report"]:checked')?.value;
+  if (!reason) { toast('Please select a reason.', 'error'); return; }
+  const pets = _reportKind === 'lost' ? db.pets() : db.found();
+  const p = pets.find(x => x.id === _reportId);
+  if (p) { (p.reports = p.reports || []).push({ reason, date: new Date().toLocaleDateString() }); db.save(_reportKind === 'lost' ? 'pets' : 'found', pets); }
+  closeModal('reportModal');
+  toast('Report submitted. Thank you.');
+}
+
+let _foundPetId;
+function openFoundModal(id) {
+  _foundPetId = id;
+  const p = db.pets().find(x => x.id === id);
+  document.getElementById('foundModalSub').textContent = 'You may have found: ' + p.name + ' (' + p.type + ')';
+  document.getElementById('revealedPhone').textContent = '';
+  document.getElementById('revealedPhone').style.display = 'none';
+  document.getElementById('finderName').value = '';
+  document.getElementById('finderMsg').value = '';
+  openModal('found');
+}
+function revealPhone() {
+  const p = db.pets().find(x => x.id === _foundPetId);
+  if (!p) return;
+  document.getElementById('revealedPhone').textContent = p.phone;
+  document.getElementById('revealedPhone').style.display = '';
+}
+function sendFoundMessage() {
+  const text = v('finderMsg');
+  if (!text) { toast('Please write a message.', 'error'); return; }
+  const msgs = db.msgs();
+  msgs.push({ petId: _foundPetId, fromName: v('finderName') || 'Anonymous', text, date: new Date().toLocaleDateString(), read: false });
+  db.save('msgs', msgs);
+  closeModal('foundModal');
+  toast('Message sent to the owner! 🐾');
+}
+
+function markReunited(id) {
+  const pets = db.pets();
+  const p = pets.find(x => x.id === id);
+  if (!p) return;
+  p.reunited = true;
+  db.save('pets', pets);
+  toast(p.name + ' is home! 🏠');
+  showDetail(id, 'lost');
+}
+
+function postComment(id, kind) {
+  const text = v('cmtText');
+  if (!text.trim()) { toast('Please write a comment.', 'error'); return; }
+  const arr = kind === 'lost' ? db.pets() : db.found();
+  const p = arr.find(x => x.id === id);
+  if (!p) return;
+  (p.comments = p.comments || []).push({ text, name: v('cmtName') || 'Anonymous', date: new Date().toLocaleDateString() });
+  db.save(kind === 'lost' ? 'pets' : 'found', arr);
+  toast('Comment posted!');
+  showDetail(id, kind);
+}
+
+// ── FOUND A PET ────────────────────────────────
+function showFoundTab(name) {
+  ['fpost','fsearch'].forEach(t => {
+    document.getElementById('fp-' + t).className = 'sub-page' + (t === name ? ' active' : '');
+  });
+  document.getElementById('ft-post').className  = 'sub-tab' + (name === 'fpost' ? ' active' : '');
+  document.getElementById('ft-search').className = 'sub-tab' + (name === 'fsearch' ? ' active' : '');
+  if (name === 'fsearch') renderFoundGrid();
+}
+function submitFoundPost() {
+  const type = v('fType'), desc = v('fDesc'), location = v('fLocation'), phone = v('fPhone'), date = v('fDate');
+  if (!type || !desc || !location || !phone || !date) { showMsg('foundMsg','Please fill in all required fields.','err'); return; }
+  const found = db.found();
+  found.unshift({
+    id: 'found_' + Date.now(), type, description: desc, colour: v('fColour'),
+    breed: v('fBreed'), dateFound: date, location, phone, details: v('fDetails'),
+    photos: _photos.foundPhotoSlots.filter(Boolean),
+    postedDate: new Date().toLocaleDateString(), name: desc, comments: [], reports: []
+  });
+  db.save('found', found);
+  showMsg('foundMsg', 'Found pet posted!', 'ok');
+  toast('Found pet posted! 🐾');
+  ['fDesc','fColour','fBreed','fLocation','fPhone','fDetails'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('fType').value = '';
+  document.getElementById('fDate').value = '';
+  _photos.foundPhotoSlots = ['','','',''];
+  buildPhotoSlots('foundPhotoSlots', _photos.foundPhotoSlots);
+}
+function renderFoundGrid() {
+  const q = (document.getElementById('fsearchQ')?.value||'').toLowerCase();
+  const type = document.getElementById('fsearchType')?.value||'';
+  let pets = db.found().filter(p => {
+    if (type && p.type !== type) return false;
+    if (q && !p.description?.toLowerCase().includes(q) && !p.location?.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const grid = document.getElementById('foundGrid');
+  const none = document.getElementById('foundNone');
+  if (!grid) return;
+  grid.innerHTML = '';
+  none.style.display = pets.length ? 'none' : 'block';
+  pets.forEach(p => grid.appendChild(makePetCard(p, 'found')));
+}
+
+// ── SUCCESS STORIES ────────────────────────────
+function renderStories() {
+  const reunited = db.pets().filter(p => p.reunited);
+  const grid = document.getElementById('storiesGrid');
+  const none = document.getElementById('storiesNone');
+  if (!grid) return;
+  grid.innerHTML = '';
+  none.style.display = reunited.length ? 'none' : 'block';
+  reunited.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pet-card';
+    card.onclick = () => showDetail(p.id, 'lost');
+    const img = p.photos && p.photos[0] ? `<img class="pet-card-img" src="${p.photos[0]}" alt="${p.name}">` : `<div class="pet-card-ph">🏠</div>`;
+    card.innerHTML = `${img}
+      <div class="pet-card-body">
+        <span class="badge badge-reunited">REUNITED ✅</span>
+        <strong>${p.name} is home!</strong>
+        <p>${p.type}${p.breed ? ' · '+p.breed : ''}</p>
+        <p>📍 ${p.location}</p>
+        <p style="color:var(--muted);font-size:.78rem">Posted ${p.postedDate}</p>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ── HOME ───────────────────────────────────────
+function refreshHome() {
+  const pets = db.pets();
+  document.getElementById('statPets').textContent = pets.length;
+  document.getElementById('statReunited').textContent = pets.filter(p=>p.reunited).length;
+  document.getElementById('statMembers').textContent = db.users().length;
+  const grid = document.getElementById('homeRecentGrid');
+  if (!grid) return;
+  const recent = pets.slice(0,4);
+  if (recent.length === 0) { grid.innerHTML = '<p style="color:var(--muted);text-align:center;width:100%">No lost pets posted yet. Be the first!</p>'; return; }
+  grid.innerHTML = '';
+  recent.forEach(p => grid.appendChild(makePetCard(p, 'lost')));
+}
+
+// ── FAQ ────────────────────────────────────────
+const FAQ_DATA = [
+  ['What do I do if I find someone else\'s pet?', 'Go to the Found a Pet page and post it so the owner can search and find it.'],
+  ['Is FurAndFound free to use?', 'Yes, completely free. No credit card, no subscription.'],
+  ['Do I need an account to search?', 'No — anyone can search. You only need an account to post a lost or found pet.'],
+  ['How long do posts stay up?', 'Until the owner marks the pet as found or deletes the post from their profile.'],
+  ['What if my pet is not a dog or cat?', 'We currently only support dogs and cats. Other animals may be added in the future.'],
+  ['How do I contact the owner of a post?', 'Open the pet\'s detail page and click "I Think I Found This Pet" to send a message or reveal their phone number.'],
+  ['Can I edit my post after submitting?', 'Yes — go to your profile page and click Edit on your post.'],
+  ['Why is my post not showing up?', 'Make sure you are signed in. Posts appear immediately after submitting. Try refreshing the search tab.'],
+];
+function buildFaq() {
+  const body = document.getElementById('faqBody');
+  if (!body || body.children.length > 0) return;
+  FAQ_DATA.forEach(([q, a]) => {
+    const item = document.createElement('div');
+    item.className = 'faq-item';
+    item.innerHTML = `<div class="faq-q" onclick="toggleFaq(this)"><span>${q}</span><span class="arrow">▼</span></div><div class="faq-a">${a}</div>`;
+    body.appendChild(item);
+  });
+}
+function toggleFaq(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('open');
+}
+
+// ── CONTACT ────────────────────────────────────
+function submitContact() {
+  const name=v('cName'),email=v('cEmail'),subject=v('cSubject'),message=v('cMessage');
+  if (!name||!email||!subject||!message) { showMsg('contactMsg','Please fill in all fields.','err'); return; }
+  const msgs = db.contact();
+  msgs.push({ name, email, subject, message, date: new Date().toLocaleDateString() });
+  db.save('contact', msgs);
+  showMsg('contactMsg','Thanks! We will get back to you soon.','ok');
+  ['cName','cEmail','cSubject','cMessage'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+}
+
+// ── PROFILE ────────────────────────────────────
+function renderProfile() {
+  const me = db.me();
+  document.getElementById('profileNotAuth').style.display = me ? 'none' : '';
+  document.getElementById('profileContent').style.display = me ? '' : 'none';
+  if (!me) return;
+  document.getElementById('profileInfo').innerHTML = `
+    <div class="profile-field"><div><div class="lbl">Name</div><div class="val">${me.name}</div></div><button onclick="showEditProfile()">Edit</button></div>
+    <div class="profile-field"><div><div class="lbl">Email</div><div class="val">${me.email}</div></div></div>
+    <div class="profile-field"><div><div class="lbl">City</div><div class="val">${me.city||'—'}</div></div></div>
+    <div class="profile-field"><div><div class="lbl">Password</div><div class="val">••••••••</div></div><button onclick="showEditProfile()">Change</button></div>
+  `;
+  document.getElementById('editName').value = me.name;
+  document.getElementById('editEmail').value = me.email;
+  document.getElementById('editCity').value = me.city || '';
+  const myPets = db.pets().filter(p => p.postedBy === db.who());
+  const grid = document.getElementById('myPostsGrid');
+  const none = document.getElementById('myPostsNone');
+  grid.innerHTML = '';
+  none.style.display = myPets.length ? 'none' : 'block';
+  myPets.forEach(p => {
+    const card = makePetCard(p, 'lost');
+    const actions = document.createElement('div');
+    actions.style = 'display:flex;gap:6px;padding:0 12px 12px;flex-wrap:wrap';
+    actions.innerHTML = `
+      <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();editPost('${p.id}')">Edit</button>
+      <button class="btn btn-red btn-sm" onclick="event.stopPropagation();deletePost('${p.id}')">Delete</button>
+      ${!p.reunited ? `<button class="btn btn-green btn-sm" onclick="event.stopPropagation();markReunited('${p.id}');renderProfile()">Found! ✅</button>` : ''}
+    `;
+    card.appendChild(actions);
+    grid.appendChild(card);
+  });
+  const allMsgs = db.msgs().filter(m => {
+    const p = db.pets().find(x => x.id === m.petId);
+    return p && p.postedBy === db.who();
+  });
+  const mc = document.getElementById('myMessages');
+  const mn = document.getElementById('myMsgNone');
+  mc.innerHTML = '';
+  mn.style.display = allMsgs.length ? 'none' : 'block';
+  allMsgs.forEach(m => {
+    const p = db.pets().find(x => x.id === m.petId);
+    mc.innerHTML += `<div class="msg-item"><p><strong>Re: ${p?.name||'your pet'}</strong> — ${m.text}</p><div class="meta">From ${m.fromName}, ${m.date}</div></div>`;
+  });
+}
+function showEditProfile() { document.getElementById('editProfileForm').style.display = ''; }
+function saveProfile() {
+  const users = db.users();
+  const idx = users.findIndex(u => u.email === db.who());
+  if (idx === -1) return;
+  users[idx].name = v('editName') || users[idx].name;
+  users[idx].email = v('editEmail') || users[idx].email;
+  users[idx].city = v('editCity');
+  if (v('editPass')) users[idx].pass = v('editPass');
+  db.save('users', users);
+  localStorage.setItem('faf_me', users[idx].email);
+  updateAuthUI();
+  document.getElementById('editProfileForm').style.display = 'none';
+  renderProfile();
+  toast('Profile updated!');
+}
+function editPost(id) {
+  const p = db.pets().find(x => x.id === id);
+  if (!p) return;
+  go('lost');
+  showSubTab('post');
+  setTimeout(() => {
+    setValue('pName', p.name); setValue('pType', p.type); setValue('pBreed', p.breed);
+    setValue('pColour', p.colour); setValue('pAge', p.age); setValue('pChip', p.chip);
+    setValue('pDate', p.dateMissing); setValue('pLocation', p.location);
+    setValue('pPhone', p.phone); setValue('pDetails', p.details);
+    if (p.urgent) document.getElementById('urgentCheck').checked = true;
+    _photos.postPhotoSlots = [...p.photos, '', '', '', ''].slice(0,4);
+    buildPhotoSlots('postPhotoSlots', _photos.postPhotoSlots);
+    const btn = document.getElementById('postSubmitBtn');
+    btn.textContent = 'Save Changes';
+    btn.onclick = () => saveEditPost(id);
+  }, 100);
+}
+function saveEditPost(id) {
+  const pets = db.pets();
+  const idx = pets.findIndex(x => x.id === id);
+  if (idx === -1) return;
+  Object.assign(pets[idx], {
+    name: v('pName'), type: v('pType'), breed: v('pBreed'), colour: v('pColour'),
+    age: v('pAge'), chip: v('pChip'), dateMissing: v('pDate'), location: v('pLocation'),
+    phone: v('pPhone'), details: v('pDetails'),
+    photos: _photos.postPhotoSlots.filter(Boolean),
+    urgent: document.getElementById('urgentCheck').checked
+  });
+  db.save('pets', pets);
+  const btn = document.getElementById('postSubmitBtn');
+  btn.textContent = 'Post Lost Pet';
+  btn.onclick = submitLostPost;
+  showMsg('postMsg','Post updated successfully!','ok');
+  toast('Post updated!');
+}
+function deletePost(id) {
+  if (!confirm('Delete this post? This cannot be undone.')) return;
+  db.save('pets', db.pets().filter(p => p.id !== id));
+  renderProfile();
+  toast('Post deleted.');
+}
+
+// ── SUB TABS (LOST) ────────────────────────────
+function showSubTab(name) {
+  ['checklist','post','search'].forEach(t => {
+    const sp = document.getElementById('sp-' + t);
+    const st = document.getElementById('st-' + t);
+    if (sp) sp.className = 'sub-page' + (t === name ? ' active' : '');
+    if (st) st.className = 'sub-tab' + (t === name ? ' active' : '');
+  });
+  if (name === 'checklist') buildChecklist();
+  if (name === 'post') checkPostAuth();
+  if (name === 'search') renderLostGrid();
+}
+
+// ── SHELTERS ───────────────────────────────────
+async function searchShelters() {
+  const loc = (document.getElementById('shelterLocation').value || '').trim();
+  if (!loc) { toast('Please enter a location', 'error'); return; }
+  const grid = document.getElementById('shelterGrid');
+  const status = document.getElementById('shelterStatus');
+  grid.innerHTML = '';
+  status.style.display = 'block';
+  status.innerHTML = '🔍 Searching for shelters near <strong>' + loc + '</strong>…';
+  try {
+    const geoRes = await fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(loc) + '&format=json&limit=1', { headers: { 'Accept-Language': 'en' } });
+    const geoData = await geoRes.json();
+    if (!geoData.length) { status.textContent = '❌ Location not found. Try a more specific city or zip code.'; return; }
+    const { lat, lon, display_name } = geoData[0];
+    status.innerHTML = '📍 Showing shelters near <strong>' + display_name.split(',').slice(0,2).join(',') + '</strong>…';
+    const radius = 50000;
+    const q = `[out:json][timeout:30];(node["amenity"="animal_shelter"](around:${radius},${lat},${lon});way["amenity"="animal_shelter"](around:${radius},${lat},${lon});node["amenity"="veterinary"](around:${radius},${lat},${lon});way["amenity"="veterinary"](around:${radius},${lat},${lon}););out body;>;out skel qt;`;
+    const ovRes = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: q });
+    const ovData = await ovRes.json();
+    const elements = ovData.elements.filter(e => e.tags && e.tags.name);
+    if (!elements.length) { status.textContent = '😔 No shelters found within 50 km of that location. Try a different city or address.'; return; }
+    status.style.display = 'none';
+    grid.innerHTML = elements.slice(0, 12).map(e => {
+      const t = e.tags;
+      const isVet = t.amenity === 'veterinary';
+      const icon = isVet ? '🏥' : '🏠';
+      const addr = [t['addr:housenumber'], t['addr:street'], t['addr:city']].filter(Boolean).join(' ') || 'Address not listed';
+      const phone = t.phone || t['contact:phone'] || 'Not listed';
+      const hours = t.opening_hours || 'Call for hours';
+      const site = t.website || t['contact:website'] || '';
+      return `<div class="info-card"><div class="icon">${icon}</div><h3>${t.name}</h3><p>📍 ${addr}<br>📞 ${phone}<br>🕐 ${hours}${site ? `<br><a href="${site}" target="_blank" rel="noopener" style="color:var(--or)">🌐 Website</a>` : ''}</p></div>`;
+    }).join('');
+  } catch(err) {
+    status.textContent = '❌ Could not load shelters. Please check your connection and try again.';
+  }
+}
+
+// ── HELPERS ────────────────────────────────────
+function v(id) { return (document.getElementById(id)?.value || '').trim(); }
+function setValue(id, val) { const el = document.getElementById(id); if (el && val) el.value = val; }
+function showMsg(id, text, cls) { const el = document.getElementById(id); if (!el) return; el.textContent = text; el.className = 'msg ' + cls; }
+function toast(msg, type) {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ── INIT ───────────────────────────────────────
+(function init() {
+  if (localStorage.getItem('faf_dark')) {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('darkBtn').textContent = '☀️';
+  }
+  updateAuthUI();
+  buildPhotoSlots('postPhotoSlots', _photos.postPhotoSlots);
+  buildPhotoSlots('foundPhotoSlots', _photos.foundPhotoSlots);
+  refreshHome();
+  // Init Google Sign-In once the GIS script finishes loading
+  if (window.google) { initGoogleSignIn(); }
+  else { document.querySelector('script[src*="accounts.google.com"]').addEventListener('load', initGoogleSignIn); }
+})();
+</script>
+</body>
+</html>
