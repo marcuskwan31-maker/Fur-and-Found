@@ -320,7 +320,7 @@ footer{background:var(--nav);border-top:1px solid var(--border);padding:40px;mar
     <span class="user-chip" id="userChip" style="display:none" onclick="go('profile')"></span>
     <button class="btn-signin" id="signinBtn" onclick="openModal('auth')">Sign In</button>
     <button class="btn-signin" id="signoutBtn" style="display:none" onclick="doLogout()">Sign Out</button>
-    <button class="btn-adopt" onclick="window.open('https://www.petfinder.com/','_blank')">Adopt Now</button>
+    <button class="btn-adopt" onclick="openModal('adopt')">Adopt Now</button>
     <button class="hamburger" onclick="toggleMenu()">☰</button>
   </div>
 </nav>
@@ -339,7 +339,7 @@ footer{background:var(--nav);border-top:1px solid var(--border);padding:40px;mar
   <a onclick="go('faq');closeMenu()">❓ FAQ</a>
   <a onclick="go('about');closeMenu()">ℹ️ About Us</a>
   <a onclick="go('contact');closeMenu()">✉️ Contact</a>
-  <a class="btn-adopt" onclick="window.open('https://www.petfinder.com/','_blank')">Adopt Now</a>
+  <a class="btn-adopt" onclick="openModal('adopt')">Adopt Now</a>
 </div>
 
 <!-- ── PAGE: HOME ────────────────────────────── -->
@@ -743,6 +743,38 @@ footer{background:var(--nav);border-top:1px solid var(--border);padding:40px;mar
       <label>New Password</label><input id="forgotPass" type="password" placeholder="Choose a new password">
       <button class="btn btn-primary btn-full" onclick="doForgot()">Reset Password</button>
       <p style="margin-top:12px;font-size:.85rem"><span class="toggle-link" onclick="toggleForgot()">← Back to sign in</span></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: ADOPT ───────────────────────────── -->
+<div id="adoptModal" class="modal-bg">
+  <div class="modal" style="max-width:500px">
+    <button class="modal-close" onclick="closeModal('adoptModal')">✕</button>
+    <div style="font-size:2.2rem;margin-bottom:10px">🐾</div>
+    <h2 style="margin-bottom:6px">Adopt a Pet</h2>
+    <p class="sub" style="margin-bottom:28px">Choose what kind of pet you're looking for.</p>
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <a href="https://www.petfinder.com/" target="_blank" onclick="closeModal('adoptModal')"
+         style="display:flex;align-items:center;gap:20px;background:var(--inp);border:2px solid var(--border);border-radius:16px;padding:22px 24px;cursor:pointer;text-decoration:none;transition:border-color .15s"
+         onmouseover="this.style.borderColor='var(--or)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:3rem;flex-shrink:0">🐶</div>
+        <div>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--text);margin-bottom:4px">Browse All Pets</div>
+          <div style="font-size:.87rem;color:var(--muted);line-height:1.5">Dogs, cats, and more from shelters and breeders on Petfinder.</div>
+        </div>
+        <div style="margin-left:auto;color:var(--or);font-size:1.3rem">→</div>
+      </a>
+      <a href="https://hopefultailsdogrescue.com/available-dogs/" target="_blank" onclick="closeModal('adoptModal')"
+         style="display:flex;align-items:center;gap:20px;background:var(--inp);border:2px solid var(--border);border-radius:16px;padding:22px 24px;cursor:pointer;text-decoration:none;transition:border-color .15s"
+         onmouseover="this.style.borderColor='var(--or)'" onmouseout="this.style.borderColor='var(--border)'">
+        <div style="font-size:3rem;flex-shrink:0">🏠</div>
+        <div>
+          <div style="font-weight:800;font-size:1.05rem;color:var(--text);margin-bottom:4px">Rescued / Saved Dogs</div>
+          <div style="font-size:.87rem;color:var(--muted);line-height:1.5">Dogs looking for a forever home from Hopeful Tails Dog Rescue.</div>
+        </div>
+        <div style="margin-left:auto;color:var(--or);font-size:1.3rem">→</div>
+      </a>
     </div>
   </div>
 </div>
