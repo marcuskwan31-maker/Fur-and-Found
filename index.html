@@ -747,6 +747,24 @@ footer{background:var(--nav);border-top:1px solid var(--border);padding:40px;mar
   </div>
 </div>
 
+<!-- ── MODAL: MISSING POSTER ─────────────────── -->
+<div id="posterModal" class="modal-bg">
+  <div class="modal" style="max-width:480px;padding:24px">
+    <button class="modal-close" onclick="closeModal('posterModal')">✕</button>
+    <p style="text-align:center;font-size:.85rem;color:var(--muted);margin-bottom:16px">📸 Take a screenshot of the poster below to save or share it!</p>
+    <div id="posterContent" style="background:#fff;border:4px solid #c05010;border-radius:12px;padding:24px;text-align:center;font-family:'Segoe UI',Arial,sans-serif;color:#1a1a1a">
+      <div style="background:#c05010;color:#fff;font-size:2.2rem;font-weight:900;letter-spacing:4px;padding:10px 0;border-radius:6px;margin-bottom:16px">MISSING</div>
+      <div id="posterPhoto" style="margin-bottom:16px"></div>
+      <div id="posterName" style="font-size:2rem;font-weight:900;color:#c05010;margin-bottom:4px"></div>
+      <div id="posterType" style="font-size:1rem;font-weight:600;color:#555;margin-bottom:16px"></div>
+      <div id="posterInfo" style="text-align:left;background:#fff8f2;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:.88rem;line-height:2"></div>
+      <div id="posterPhone" style="background:#c05010;color:#fff;font-size:1.1rem;font-weight:800;padding:12px;border-radius:8px;margin-bottom:12px"></div>
+      <div style="font-size:.8rem;color:#888">Posted on FurAndFound • furandfound.com</div>
+    </div>
+    <button class="btn btn-primary btn-full" style="margin-top:16px" onclick="window.print()">🖨️ Print Poster</button>
+  </div>
+</div>
+
 <!-- ── MODAL: ADOPT ───────────────────────────── -->
 <div id="adoptModal" class="modal-bg">
   <div class="modal" style="max-width:500px">
@@ -1278,6 +1296,7 @@ function showDetail(id, kind) {
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px">
       <button class="btn btn-outline btn-sm" onclick="revealPhoneInline('${p.phone}',this)">📞 Show Contact Info</button>
       <button class="btn btn-outline btn-sm" onclick="openShare('${id}','${kind}')">📤 Share</button>
+      ${kind === 'lost' ? `<button class="btn btn-outline btn-sm" onclick="openPoster('${id}')">📋 Missing Poster</button>` : ''}
       <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" onclick="openReport('${id}','${kind}')">⚑ Report</button>
       ${!p.reunited && kind === 'lost' ? `<button class="btn btn-primary" onclick="openFoundModal('${id}')">🐾 I Think I Found This Pet</button>` : ''}
       ${isOwner && !p.reunited ? `<button class="btn btn-green btn-sm" onclick="markReunited('${id}')">✅ My Pet Was Found!</button>` : ''}
@@ -1632,6 +1651,35 @@ function showSubTab(name) {
   if (name === 'checklist') buildChecklist();
   if (name === 'post') checkPostAuth();
   if (name === 'search') renderLostGrid();
+}
+
+// ── MISSING POSTER ─────────────────────────────
+function openPoster(id) {
+  const p = db.pets().find(x => x.id === id);
+  if (!p) return;
+  const photos = (p.photos || []).filter(Boolean);
+
+  document.getElementById('posterName').textContent = p.name || 'Unknown';
+  document.getElementById('posterType').textContent = [p.breed, p.type].filter(Boolean).join(' • ');
+
+  const photoEl = document.getElementById('posterPhoto');
+  photoEl.innerHTML = photos.length
+    ? `<img src="${photos[0]}" style="width:100%;max-height:220px;object-fit:cover;border-radius:10px;border:3px solid #e8d4c0">`
+    : `<div style="height:160px;background:#fde8d8;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:5rem">${p.type === 'Cat' ? '🐱' : '🐶'}</div>`;
+
+  const rows = [
+    p.colour       && `<b>Colour:</b> ${p.colour}`,
+    p.age          && `<b>Age:</b> ${p.age}`,
+    p.chip         && `<b>Microchip/ID:</b> ${p.chip}`,
+    p.dateMissing  && `<b>Date Missing:</b> ${p.dateMissing}`,
+    p.location     && `<b>Last Seen:</b> ${p.location}`,
+    p.details      && `<b>Details:</b> ${p.details}`,
+  ].filter(Boolean);
+  document.getElementById('posterInfo').innerHTML = rows.join('<br>');
+
+  document.getElementById('posterPhone').textContent = p.phone ? '📞 ' + p.phone : '📞 Contact via FurAndFound';
+
+  document.getElementById('posterModal').classList.add('open');
 }
 
 // ── SHELTERS ───────────────────────────────────
